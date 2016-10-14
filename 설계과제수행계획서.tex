@@ -1,0 +1,158 @@
+\documentclass[12pt,a4paper]{report}
+\synctex=1
+\usepackage[utf8]{inputenc}
+\usepackage[margin=2cm, top=1.5cm, bottom=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{libertine}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{pgfornament}
+\usepackage{eso-pic}
+\usepackage{textcomp}
+\usepackage{courier}
+\usepackage[hangul]{kotex}
+
+\title{
+	\centering
+	\pgfornament[width=12cm,color=teal]{84}\\
+	\vspace{1cm}
+	\fontsize{50}{50} \selectfont {예약 시스템 구축\\설계과제 수행 계획서}\\
+		\pgfornament[width=12cm,color=teal]{88}\\
+	\vfill}
+\author{
+	\LARGE
+	\begin{tabular}{rl}
+		\hline
+		교과목명 : & 자료구조와 실습\\
+		담당교수 : & 정 준호 교수님\\
+		학과 : & 불교학부 \\
+		학번 : & 2016110056\\ 
+		이름 : & 박승원\\
+		날짜 : & \today\\
+		\hline
+	\end{tabular}\vspace{2cm}
+	\\
+\includegraphics[width=0.5\textwidth]{logo.jpg}
+	}
+\date{}
+
+
+\linespread{1.3}
+
+\begin{document}
+
+\maketitle
+
+%\includegrap
+
+\newpage
+\tableofcontents
+
+\noindent
+%\chapter{설계과제 개요}
+%\section{과제 목표}
+%\section{과제 내용}
+%\subsection{개발 설계}
+%\subsection{프로그램 구현}
+%\subsection{마무리}
+%\section{과제 수행 방법}
+\chapter{설계과제 목표 및 주요 내용}
+\section{과제 목표}
+소형의 개인 사업자들이 하나의 컴퓨터로 혹은 공유기, 인트라넷을 기반으로 한 내부 망을 갖춘 영업 환경에서 범용으로 사용할 수 있는 예약 프로그램.
+
+일반적으로 대형 업체들은 자신들의 예약 프로그램을 자신의 목적에 특화시켜서 구현한 것으로, 인터넷 예약, 결제 기능까지 갖추어서 사용할 수 있을 것이지만, 개인 사업자들의 경우는 그럴 만한 투자 여력이 없다. 이러한 개인 사업자들이 사용할 수 있는 범용의 예약 프로그램을 만들어 보고자 한다.
+\section{과제 내용}
+범용의 무료 프로그램이기에 개인사업자들의 각각의 요구에 맞춰 특화된 프로그램을 만들수는 없겠지만, 시설과 예약 시간이라는 두 가지의 추상적인 데이터만으로도 일반적인 모든 경우에 모두 대처할 수 있으리라 생각한다. 
+
+여기에서 시설이라 함은 식당인 경우 각각의 테이블이 하나의 시설이 되고, 숙박업소 등에서는 각각의 방이 하나의 시설이 된다.
+\subsection{개발 설계}
+\subsubsection{계획서 작성}
+C언어의 자료 구조인 리스트를 최대한 활용하여 범용의 예약 프로그램을 만든다.\\
+호환성을 고려하여 핵심 부분은 커맨드라인으로 만들고(C언어) \\
+유저 인터페이스의 편의를 위하여 따로 frontend를 만든다.(C++, 혹은 자바)
+
+\subsubsection{요구사항 검토}
+\begin{itemize}
+\item 자신의 업체에 맞게 시설을 설정할 수 있을 것. Txt 파일로 간편하게 설정 가능하게 할 것.
+\item 업체 내부에서 인트라넷 환경으로 혹은 공유기로 서버에 있는 예약을 조회 변경할 수 있을 것.
+\item 예약 시간 입력이 편리할 것. 
+
+\item 시설별 일, 주, 월별로 예약 상황을 테이블 형식으로 간편하게 볼 수 있게 할 것.
+\end{itemize}
+\subsubsection{모듈 설계}
+소스의 재사용성을 높이기 위해 서버와 클라이언트 를 따로 만들고 이를 바탕으로 프론트 엔드를 추가한다.
+\paragraph{Server}
+tcpip 통신을 통해 클라이언트와 대화하여 예약 진행.
+예약 입력, 예약 삭제, 예약 상황 보기의 기능을 구비한다.
+\begin{itemize}
+	\item 시간에 따라서 자동으로 정렬되는 삽입함수.
+	\item 시설명과 사용 시작 시간을 매개변수로 받아 예약을 삭제하는 함수.
+	\item 시설명을 매개 변수로 받아 그 시설의 모든 예약 상황을 보여주는 display 함수.
+	\item TcpIp 통신 모듈
+\end{itemize}
+
+\paragraph{Client} 
+호환성을 위해 콘솔로 인터페이스.
+문자열로 서버에 질의하고 문자열의 답문을 보여준다.
+\begin{itemize}
+	\item 대화형으로 서버와 통신하는 함수.
+	\item 커맨드 라인으로 서버와 통신하는 함수.
+	\item TcpIp 통신 모듈
+\end{itemize}
+
+\paragraph{Front end}
+클라이언트 프로그램을 사용하는 프로그램. 그래픽 환경을 조성하여 사용자 편의를 도모함.
+클라이언트 프로그램을 사용하여 받은 문자열을 process하여 그래픽 환경으로 보여줌. 예약 입력을 그래픽 환경에서 직관적으로 함.
+\begin{itemize}
+	\item 클라이언트를 사용하는 사용자 프로그램.
+	\item 클라이언트로부터 받은 문자열을 인식하여 테이블 형식으로 나타냄.
+	\item 일, 주, 월 단위로 스케일을 변화시켜서 예약상황을 표현할 수 있는 기능.
+	\item 테이블의 위치를 클릭하여 예약과 삭제를 쉽게 할 수 있는 기능.
+\end{itemize}
+
+\subsection{프로그램 구현}
+
+\paragraph{자료구조}
+시설들의 포인터 배열에 예약 시간의 리스트가 물린 2차원적인 리스트를 활용한다.\\
+\input{reserv.tex}
+\paragraph{테이블 표현 양식의 예}
+예약상황의 빠른 파악을 위해 다음과 같은 형식으로 시간 혹은 일자로 스케일을 바꾸어 가며 표현할 수 있게 한다. 또한 테이블의 칸을 클릭하였을 때 빈칸일 경우는 예약, 예약된 칸일 경우 삭제를 할 수 있게 한다.\\
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+\hline
+시설명& 1&2&3&4&5&6&7&8 날짜 혹은 시간 ......\\
+\hline
+청실& \multicolumn{3}{c|}{박승원} & \multicolumn{5}{c|}{김말년}\\
+\hline
+홍실& \multicolumn{4}{c|}{손오공}& \multicolumn{2}{c|}{저팔계}&\multicolumn{2}{c|}{사오정}\\
+\hline
+금실& \multicolumn{4}{c|}{}& \multicolumn{2}{c|}{저팔계}&\multicolumn{2}{c|}{사오정}\\
+\hline
+은실& \multicolumn{4}{c|}{손오공}& \multicolumn{2}{c|}{저팔계}&\multicolumn{2}{c|}{}\\
+\hline
+
+\end{tabular}
+
+\subsection{마무리}
+서버와 클라이언트는 어느 시스템에서든 호환 가능하도록 호환성을 중심으로 작성하고, 프론트 엔드는 에러에 어느 정도 대처할 수 있는 사용자의 예기치 않은 입력에 대응할 수 있는 프로그램을 추구한다.
+
+프론트 엔드는 각각의 운영체제의 라이브러리에 맞추어 개발할 여지를 남겨둔다.
+\section{과제 수행 방법}
+매우 짧은 개발 일정과 자료구조 연습이라는 목적을 기준으로, 개발의 우선순위를 두기로 하였다.
+우선은 서버와 커맨드 라인 클라이언트를 작성하고, 이후에 프론트 엔드를 하기로 하였다. 
+TCPIP 통신 모듈은 기존에 작성하였던 것을 이용하기로 하였다. 
+\chapter{수행 일정}
+\begin{tabular}{|c|c|}
+	\hline
+세부 개발내용&주별 세부 추진 일정\\
+\hline
+자료수집 및 설계 계획 수립&$\sim$ 10/16\\
+요구사항 검토&10.17\\
+구조도 및 모듈 설계&10.18\\
+프로그램 설계&10.19$\sim$ 10.21\\
+프로그램 코딩&10.21$\sim$ 10.25\\
+성능확인 및 오류 수정&10.26$\sim$ 10.27\\
+최종 점검 및 개선 사항 보완&10.28\\
+\hline
+\end{tabular}
+\end{document}
