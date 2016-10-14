@@ -5,7 +5,7 @@ all :
 PHONY : clean
 
 clean :
-	rm OBJS/*.o OBJS/*.x *.x
+	rm OBJ/*.o OBJ/*.x *.x
 
 ls :
 	echo $(EXE)

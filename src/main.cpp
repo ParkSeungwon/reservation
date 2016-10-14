@@ -12,6 +12,6 @@ int main()
 	rsv.display("청실");
 	rsv.display("홍실");
 
-	//Server sv;
-	//sv.start(rsv);
+	Server sv;
+	sv.start(rsv);
 }

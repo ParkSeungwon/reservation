@@ -10,6 +10,6 @@ int main()
 	while(s != "quit") {
 		cin >> s;
 		cl.send(s);
-		cout << cl.recv();
+		cout << cl.recv() << endl;
 	}
 }
