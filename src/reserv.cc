@@ -40,9 +40,22 @@ void Reserv::cancel(string fc, int from)
 	facilities[fc] = del(facilities[fc], from);
 }
 
-void Reserv::display(string facility) 
+string Reserv::display(string facility) 
 {
 	cout << facility << " 예약상황입니다." << endl;
-	show(facilities[facility]);
+	show(facilities[facility], buff);
+	return buff;
+}
+
+string Reserv::operator()(string s) 
+{
+	if(s == "청실") return display("청실");
+	if(s == "예약") {
+		Time f = {2016, 11, 13, 11, 0};
+		Time t = {2016, 11, 13, 12, 30};
+		Reservation r = {"박승원", "031-255-6698", to_minute(&f), to_minute(&t)};
+		reserv("청실", &r);
+	}
+	else return "";
 }
 
