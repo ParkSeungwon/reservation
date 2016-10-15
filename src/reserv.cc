@@ -43,10 +43,26 @@ void Reserv::cancel(string fc, int from)
 
 string Reserv::display(string facility) 
 {
-	buff[0] = '\0';
 	cout << facility << " 예약상황입니다." << endl;
-	show(facilities[facility], buff);
-	return buff;
+	show(facilities[facility]);
+	string r;
+	for(Reservation* p = facilities[facility]; p; p = p->node) {
+		r += p->name; r += ' ';
+		r += p->tel; r += ' ';
+		r += to_string(p->from); r += ' ';
+		r += to_string(p->until); r += ' ';
+	}
+	if(!r.empty()) r.pop_back();
+	return r;
+}
+
+string cut(string& s)
+{//첫번째 스페이스까지를 잘라내어서 리턴함.
+	int pos = s.find(' ');
+	string r = s.substr(0, pos);
+	if(pos != string::npos) s = s.substr(pos+1);
+	else s = "";
+	return r;
 }
 
 string Reserv::operator()(string s) 
@@ -69,11 +85,7 @@ string Reserv::operator()(string s)
 		return "취소되었습니다.";
 	} else return s + " from server";
 }
+//예약구문 reserve 박승원 010-3456-5678 2016 10 11 12 30 2016 10 11 14 0 청실
+//조회구문 display 청실
+//취소구문 cancel 2016 10 11 12 30 청실
 
-string Reserv::cut(string& s)
-{//cut string by space return head
-	int pos = s.find(' ');
-	string r = s.substr(0, pos);
-	if(pos != string::npos) s = s.substr(pos+1);
-	return r;
-}

@@ -43,7 +43,7 @@ Client::Client(string ip, int port) : Tcpip(port)
 	server_addr.sin_addr.s_addr = inet_addr(ip.c_str());
 	if(-1 == connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)))
 		cout << "connect() error" << endl;
-	else cout << " connecting"  <<endl;
+	//else cout << " connecting"  <<endl;
 }
 
 Server::Server(int port, unsigned int t, int queue, string e) : Tcpip(port) 

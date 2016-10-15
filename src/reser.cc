@@ -83,7 +83,7 @@ Reservation* del(Reservation* p, int from)
 	return p;
 }
 
-void show(Reservation* p, char* buff) 
+void show(Reservation* p) 
 {//현재 포인터가 가리키는 시설의 모든 예약 상황을 보여줌
 	for(; p; p = p->node) {
 		Time f = to_time(p->from);
@@ -91,10 +91,6 @@ void show(Reservation* p, char* buff)
 		printf("%s[%s] : %d년 %02d월%02d일 %02d:%02d ~ %d년 %02d월%02d일 %02d:%02d\n", 
 			p->name, p->tel, f.year, f.month, f.day, f.hour, f.minute, 
 			u.year, u.month, u.day, u.hour, u.minute);
-		strcat(buff, p->name);
-		strcat(buff, " ");
-		strcat(buff, p->tel);
-
 	}
 }
 

@@ -17,7 +17,7 @@ typedef struct Reservation
 void free_mem(Reservation* p);
 Reservation* insert(Reservation* p, Reservation* to_insert);
 Reservation* del(Reservation* p, int from);
-void show(Reservation* p, char* buff);
+void show(Reservation* p);
 Time to_time(int);
 int to_minute(Time*);
 
@@ -34,9 +34,6 @@ protected:
 	void cancel(std::string facility, int from);
 	std::string display(std::string facility);
 	std::map<std::string, Reservation*> facilities;
-	char buff[200]{};
 
-private:
-	std::string cut(std::string& s);
 };
 
