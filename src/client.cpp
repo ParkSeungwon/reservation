@@ -8,7 +8,7 @@ int main()
 	Client cl;
 	string s;
 	while(s != "quit") {
-		cin >> s;
+		getline(cin, s);
 		cl.send(s);
 		cout << cl.recv() << endl;
 	}

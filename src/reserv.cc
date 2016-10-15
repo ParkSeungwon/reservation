@@ -1,3 +1,4 @@
+#include<cstring>
 #include<fstream>
 #include<iostream>
 #include<string>
@@ -6,7 +7,7 @@
 using namespace std;
 
 Reserv::Reserv() 
-{
+{//서버 시작시 시설을 초기화하고, 예약상황을 읽어들인다.
 	string s;
 	int i=0;
 	for(ifstream f("facility.txt"); f >> s; i++) facilities[s] = NULL;
@@ -19,7 +20,7 @@ Reserv::Reserv()
 }
 
 Reserv::~Reserv()
-{
+{//서버 종료시 파일로 저장하고 메모리를 해제한다.
 	ofstream f("reservation.txt");
 	for(auto& a : facilities) {
 		for(Reservation* p = a.second; p; p = p->node) { 
@@ -42,20 +43,37 @@ void Reserv::cancel(string fc, int from)
 
 string Reserv::display(string facility) 
 {
+	buff[0] = '\0';
 	cout << facility << " 예약상황입니다." << endl;
 	show(facilities[facility], buff);
 	return buff;
 }
 
 string Reserv::operator()(string s) 
-{
-	if(s == "청실") return display("청실");
-	if(s == "예약") {
-		Time f = {2016, 11, 13, 11, 0};
-		Time t = {2016, 11, 13, 12, 30};
-		Reservation r = {"박승원", "031-255-6698", to_minute(&f), to_minute(&t)};
-		reserv("청실", &r);
-	}
-	else return "";
+{//TCPIP 통신 하는 부분. 스트링 s는 수신이고, 리턴값이 tcpip의 답신.
+	string head = cut(s);
+	if(head == "display") return display(s);
+	else if(head == "reserve") {
+		Reservation r;
+		strcpy(r.name, cut(s).data());
+		strcpy(r.tel, cut(s).data());
+		Time f ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
+		Time t ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
+		r.from = to_minute(&f);
+		r.until = to_minute(&t);
+		reserv(cut(s), &r);
+		return "예약되었습니다.";
+	} else if(head == "cancel") {
+		Time f ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
+		cancel(cut(s), to_minute(&f));
+		return "취소되었습니다.";
+	} else return s + " from server";
 }
 
+string Reserv::cut(string& s)
+{//cut string by space return head
+	int pos = s.find(' ');
+	string r = s.substr(0, pos);
+	if(pos != string::npos) s = s.substr(pos+1);
+	return r;
+}

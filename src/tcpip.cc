@@ -66,13 +66,13 @@ void Server::start(Reserv& functor)
 		if(client_fd == -1)	cout << "accept() error" << endl;
 		else {
 			cout << "accepting" << endl;
-			if(fork() == 0) {
+			if(fork() != 0) {
 				string s;
-				signal(SIGALRM, timed_out);
+				signal(SIGALRM, timed_out);//타임아웃 시간까지 입력X -> timed_out실행
 				while(s != end_string) {
 					s = recv();
 					send(functor(s));
-					alarm(time_out);
+					alarm(time_out);//타임아웃 재설정
 				}
 				cout << "ending child" << endl;
 				break;

@@ -23,17 +23,20 @@ int to_minute(Time*);
 
 
 class Reserv
-{
+{//tcpip모듈에 펑크터로 넘길 클래스.
 public:
 	Reserv();
 	virtual ~Reserv();
 	std::string operator()(std::string s);
+
+protected:
 	void reserv(std::string facility, Reservation* p);
 	void cancel(std::string facility, int from);
 	std::string display(std::string facility);
-
-protected:
 	std::map<std::string, Reservation*> facilities;
-	char buff[200];
+	char buff[200]{};
+
+private:
+	std::string cut(std::string& s);
 };
 
