@@ -34,3 +34,13 @@ protected:
 	std::vector<Facility> v;
 };
 
+class ResDialog : public Gtk::Dialog
+{
+public:
+	ResDialog(int from, int to);
+	Gtk::SpinButton spf[5], spt[5];
+	Gtk::Entry name, tel;
+	
+protected:
+	Gtk::HBox hb1, hb2;
+};
