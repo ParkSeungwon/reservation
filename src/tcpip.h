@@ -32,7 +32,6 @@ public:
 	void start(Reserv& functor);
 
 protected:
-	static void timed_out(int sig);
 	std::string end_string;
-	unsigned int time_out;
+
 };

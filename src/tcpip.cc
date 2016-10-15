@@ -49,7 +49,6 @@ Client::Client(string ip, int port) : Tcpip(port)
 Server::Server(int port, unsigned int t, int queue, string e) : Tcpip(port) 
 {
 	end_string = e;
-	time_out = t;
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	if(bind(server_fd, (sockaddr*)&server_addr, sizeof(server_addr)) == -1)
 		cout << "bind() error" << endl;
@@ -61,28 +60,15 @@ Server::Server(int port, unsigned int t, int queue, string e) : Tcpip(port)
 void Server::start(Reserv& functor)
 {
 	int cl_size = sizeof(client_addr);
-	while(1) {
+	string s;
+	while(s != end_string) {
 		client_fd = accept(server_fd, (sockaddr*)&client_addr, (socklen_t*)&cl_size);
 		if(client_fd == -1)	cout << "accept() error" << endl;
 		else {
 			cout << "accepting" << endl;
-			if(fork() != 0) {
-				string s;
-				signal(SIGALRM, timed_out);//타임아웃 시간까지 입력X -> timed_out실행
-				while(s != end_string) {
-					s = recv();
-					send(functor(s));
-					alarm(time_out);//타임아웃 재설정
-				}
-				cout << "ending child" << endl;
-				break;
-			}
+			s = recv();
+			send(functor(s));
 		}
 	}
 }
 
-void Server::timed_out(int sig)
-{
-	cout << "time out" << endl;
-	exit(0);
-}
