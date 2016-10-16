@@ -15,7 +15,7 @@ Reserv::Reserv()
 		Reservation tmp;
 		f >> tmp.name >> tmp.tel >> tmp.from >> tmp.until;
 		tmp.node = NULL;
-		facilities[s] = insert(facilities[s], &tmp);//insert easily
+		facilities[s] = insert(facilities[s], &tmp);//C함수
 	}
 }
 

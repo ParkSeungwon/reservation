@@ -16,11 +16,22 @@ string psstm(string command)
 	return buf;
 }
 
+ResButton::ResButton(string name, string tel, int from, int until, float scale)
+{
+	this->name = name;
+	this->tel = tel;
+	this->from = from;
+	this->until = until;
+	set_label(name);//셀의 라벨을 예약자 이름으로
+	set_size_request(scale * (until - from), 40);//셀의 크기를 예약 시간에 맞게
+}
+
 Facility::Facility(string fac, int start, int end, float scale)
 {
 	string command = "./client.x display " + fac;//시설의 예약 상황을 표시하는 구문
 	string s = psstm(command);
 	s.pop_back();//remove '\n'!! 
+
 	int from, until;
 	string tel;
 	while(!s.empty()) {
@@ -28,7 +39,7 @@ Facility::Facility(string fac, int start, int end, float scale)
 			until = stoi(cut(s)), scale};
 		bt.signal_clicked().connect(
 				bind(&Facility::on_click, this, fac, tel, from, until));
-		if(start < from) {
+		if(start < from) {//빈 여백 채우기
 			ResButton tmp{"", "", start, from, scale};
 			tmp.signal_clicked().connect(
 					bind(&Facility::on_click, this, fac, "", start, from));
@@ -90,30 +101,17 @@ void Facility::on_click(string fac, string tel, int from, int until)
 }
 
 
-ResButton::ResButton(string name, string tel, int from, int until, float scale)
-{
-	this->name = name;
-	this->tel = tel;
-	this->from = from;
-	this->until = until;
-	set_label(name);//셀의 라벨을 예약자 이름으로
-	set_size_request(scale * (until - from), 40);//셀의 크기를 예약 시간에 맞게
-}
-
 Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 {
-	p = this;
-	mon.set_size_request(-1, 40);
-	day.set_size_request(-1, 40);
-	hr.set_size_request(-1, 40);
 	string s;
 	for(ifstream f("facility.txt"); f >> s;) {
 		v.push_back(Facility{s, start, end, scale});
-		Gtk::Button lb(s);
-		lb.set_size_request(-1, 40);
-		vl.push_back(std::move(lb));
+		Gtk::Button b(s);
+		b.set_size_request(-1, 40);
+		vl.push_back(std::move(b));
 	}
 
+	//맨 윗 줄에 월, 일, 시간 버튼을 생성한다.
 	Time start_time = to_time(start);
 	Time end_time = to_time(end);
 	Time tmp = start_time;
@@ -176,22 +174,25 @@ Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 }
 
 void Win::pack_all()
-{
+{//요소들을 윈도우에 정렬시킨다.
+	p = this;
+	set_title("예약 시스템");
+	mon.set_size_request(-1, 40);
+	day.set_size_request(-1, 40);
+	hr.set_size_request(-1, 40);
+
 	Gtk::Box* box = get_content_area();
 	box->pack_start(hb);
-	scr.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
-	//add(hb);
-	hb.pack_start(scr, Gtk::PACK_SHRINK);
-	hb.pack_start(scwin);
-	scr.add(fac_label_box);
-	scr.set_vadjustment(scwin.get_vadjustment());
-	scwin.add(vb);
+	scwin1.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+	hb.pack_start(scwin1, Gtk::PACK_SHRINK);
+	hb.pack_start(scwin2);
+	scwin1.add(fac_label_box);
+	scwin1.set_vadjustment(scwin2.get_vadjustment());
+	scwin2.add(vb);
 
 	for(auto& a : v) vb.pack_start(a, Gtk::PACK_SHRINK);
 	for(auto& a : vl) fac_label_box.pack_start(a, Gtk::PACK_SHRINK);
 	
-//	set_default_size(1000, 700);
-	set_title("예약 시스템");
 	show_all_children();
 }
 

@@ -7,7 +7,7 @@ using namespace std;
 int main(int c, char** v)
 {
 	string s;
-	ifstream f("serverip.cfg");
+	ifstream f("serverip.cfg");//서버의 ip주소를 저장한 파일.
 	f >> s;
 	Client cl(s);
 	s.clear();
@@ -17,7 +17,7 @@ int main(int c, char** v)
 			s += ' ';
 		}
 		s.pop_back(); //+= v[c-1];
-	} else getline(cin, s);
+	} else cout << "usage : " << v[0] << " [명령어]" << endl;
 	cl.send(s);
 	cout << cl.recv() << endl;
 }
