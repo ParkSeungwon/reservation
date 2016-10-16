@@ -129,38 +129,3 @@ void enter_time(Time* t)
 	fgets(buff, 4, stdin);
 	if(buff[0] != '\n') t->minute = atoi(buff);
 }
-
-//int main()
-//{
-//	Reservation* p = NULL;
-//	Time f = {2016, 10, 11, 17, 30};
-//	Time t = {2016, 10, 11, 19, 00};
-//	Reservation res = {"박승원", "031-255-6698", to_minute(&f), to_minute(&t), NULL};
-//	Time f2 = {2016, 10, 11, 19, 30};
-//	Time t2 = {2016, 10, 11, 21, 00};
-//	Reservation res2 = {"박동원", "031-255-6698", to_minute(&f2), to_minute(&t2), NULL};
-//	p = insert(p, &res);
-//	p = insert(p, &res2);
-//	show(p);
-//	p = del(p, res.from);
-//	
-////	Time from, until;
-////	char name[40], tel[20];
-////	printf("시작 시간을 입력하세요.");
-////	enter_time(&from);
-////	printf("종료 시간을 입력하세요.");
-////	enter_time(&until);
-////	printf("성함을 입력하세요.");
-////	scanf("%s", name);
-////	printf("연락처를 입력하세요.");
-////	scanf("%s", tel);
-////	Reservation rr;
-////	strcpy(rr.name, name);
-////	strcpy(rr.tel, tel);
-////	rr.from = to_minute(&from);
-////	rr.until = to_minute(&until);
-////	rr.node = NULL;
-////	p = insert(p, &rr);
-//	show(p);
-//	free_mem(p);
-//}

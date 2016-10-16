@@ -16,7 +16,7 @@ string psstm(string command)
 	return buf;
 }
 
-Facility::Facility(string fac, int start, float scale)
+Facility::Facility(string fac, int start, int end, float scale)
 {
 	string command = "./client.x display " + fac;
 	string s = psstm(command);
@@ -26,14 +26,21 @@ Facility::Facility(string fac, int start, float scale)
 	while(!s.empty()) {
 		ResButton bt{cut(s), tel = cut(s), from = stoi(cut(s)), 
 			until = stoi(cut(s)), scale};
-		bt.signal_clicked().connect(bind(&Facility::on_click, this, fac, tel, from, until));
+		bt.signal_clicked().connect(
+				bind(&Facility::on_click, this, fac, tel, from, until));
 		if(start < from) {
 			ResButton tmp{"", "", start, from, scale};
-			tmp.signal_clicked().connect(bind(&Facility::on_click, this, fac, "", start, from));
+			tmp.signal_clicked().connect(
+					bind(&Facility::on_click, this, fac, "", start, from));
 			v.push_back(move(tmp));
 		}
 		v.push_back(move(bt));
 		start = until;
+	}
+	if(start < end) {
+		v.push_back(ResButton{"", "", start, end, scale});
+		v.back().signal_clicked().connect(
+					bind(&Facility::on_click, this, fac, "", start, end));
 	}
 	for(auto& a : v) pack_start(a, Gtk::PACK_SHRINK);
 	show_all_children();
@@ -77,7 +84,6 @@ void Facility::on_click(string fac, string tel, int from, int until)
 			}
 		}
 	}
-
 }
 
 
@@ -91,13 +97,68 @@ ResButton::ResButton(string name, string tel, int from, int until, float scale)
 	set_size_request(scale * (until - from), -1);
 }
 
-Win::Win()
+Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 {
 	string s;
-	for(ifstream f("facility.txt"); f >> s;) v.push_back(Facility(s, 8832000, 0.2));
-	add(scwin);
+	for(ifstream f("facility.txt"); f >> s;) {
+		v.push_back(Facility{s, start, end, scale});
+		vl.push_back(Gtk::Button(s));
+	}
+
+	Time start_time = to_time(start);
+	Time end_time = to_time(end);
+	Time tmp = start_time;
+	tmp.month++;
+	tmp.day = 0;
+	tmp.hour = 0;
+	tmp.minute = 0;
+	for(; to_minute(&tmp) < end; start = to_minute(&tmp), tmp.month++) 
+		vm.push_back(ResButton{to_string(tmp.month-1)+"월", "", 
+				start, to_minute(&tmp), scale});
+	vm.push_back(ResButton{to_string(tmp.month-1)+"월", "", start, end, scale});
+	for(auto& a : vm) mon_box.pack_start(a, Gtk::PACK_SHRINK);
+
+	tmp = start_time;
+	start = to_minute(&tmp);
+	tmp.minute = 0;
+	tmp.hour = 0;
+	tmp.day++;
+	for(int t = to_minute(&tmp); t < end; start = t, t += 60 * 24) 
+		vd.push_back(ResButton{to_string(to_time(t).day-1)+"일", "", start, t, scale});
+	vd.push_back(ResButton{to_string(to_time(end-1).day)+"일", "", start, end, scale});
+	for(auto& a : vd) day_box.pack_start(a, Gtk::PACK_SHRINK);
+
+	tmp = start_time;
+	start = to_minute(&tmp);
+	tmp.minute = 0;
+	int d = tmp.hour++;
+	for(int t= to_minute(&tmp); t < end; start = t, t += 60) {
+		vh.push_back(ResButton{to_string(d++ % 24)+"시", "", start, t, scale});
+		cout << start << ' ' << t << endl;
+	}
+	vh.push_back(ResButton{to_string(d % 24)+"시", "", start, end, scale});
+	for(auto& a : vh) hour_box.pack_start(a, Gtk::PACK_SHRINK);
+	
+	pack_all();
+}
+
+void Win::pack_all()
+{
+	add(hb);
+	hb.pack_start(fac_label_box, Gtk::PACK_SHRINK);
+	hb.pack_start(scwin);
 	scwin.add(vb);
+
+	vb.pack_start(mon_box, Gtk::PACK_SHRINK);
+	vb.pack_start(day_box, Gtk::PACK_SHRINK);
+	vb.pack_start(hour_box, Gtk::PACK_SHRINK);
 	for(auto& a : v) vb.pack_start(a, Gtk::PACK_SHRINK);
+
+	fac_label_box.pack_start(mon, Gtk::PACK_SHRINK);
+	fac_label_box.pack_start(day, Gtk::PACK_SHRINK);
+	fac_label_box.pack_start(hr, Gtk::PACK_SHRINK);
+	for(auto& a : vl) fac_label_box.pack_start(a, Gtk::PACK_SHRINK);
+	
 	set_default_size(1000, 700);
 	show_all_children();
 }

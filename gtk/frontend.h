@@ -16,7 +16,7 @@ protected:
 class Facility : public Gtk::HBox
 {
 public:
-	Facility(std::string facility, int from, float scale = 1);
+	Facility(std::string facility, int from, int end, float scale = 1);
 
 protected:
 	std::vector<ResButton> v;
@@ -26,12 +26,20 @@ protected:
 class Win : public Gtk::Window
 {
 public:
-	Win();
+	Win(int, int, float);
 
 protected:
 	Gtk::ScrolledWindow scwin;
-	Gtk::VBox vb;
+	Gtk::VBox vb, fac_label_box;
+	Gtk::HBox hb;
 	std::vector<Facility> v;
+	std::vector<Gtk::Button> vl;
+	std::vector<ResButton> vm, vd, vh;
+	Gtk::Button mon, day, hr;
+	Gtk::HBox mon_box, day_box, hour_box;
+
+private:
+	void pack_all();
 };
 
 class ResDialog : public Gtk::Dialog
@@ -40,7 +48,6 @@ public:
 	ResDialog(int from, int to);
 	Gtk::SpinButton spf[5], spt[5];
 	Gtk::Entry name, tel;
-	
 protected:
 	Gtk::HBox hb1, hb2;
 };
