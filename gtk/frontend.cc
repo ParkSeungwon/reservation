@@ -117,28 +117,34 @@ Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 				start, to_minute(&tmp), scale});
 	vm.push_back(ResButton{to_string(tmp.month-1)+"월", "", start, end, scale});
 	for(auto& a : vm) mon_box.pack_start(a, Gtk::PACK_SHRINK);
-
-	tmp = start_time;
-	start = to_minute(&tmp);
-	tmp.minute = 0;
-	tmp.hour = 0;
-	tmp.day++;
-	for(int t = to_minute(&tmp); t < end; start = t, t += 60 * 24) 
-		vd.push_back(ResButton{to_string(to_time(t).day-1)+"일", "", start, t, scale});
-	vd.push_back(ResButton{to_string(to_time(end-1).day)+"일", "", start, end, scale});
-	for(auto& a : vd) day_box.pack_start(a, Gtk::PACK_SHRINK);
-
-	tmp = start_time;
-	start = to_minute(&tmp);
-	tmp.minute = 0;
-	int d = tmp.hour++;
-	for(int t= to_minute(&tmp); t < end; start = t, t += 60) {
-		vh.push_back(ResButton{to_string(d++ % 24)+"시", "", start, t, scale});
-		cout << start << ' ' << t << endl;
-	}
-	vh.push_back(ResButton{to_string(d % 24)+"시", "", start, end, scale});
-	for(auto& a : vh) hour_box.pack_start(a, Gtk::PACK_SHRINK);
+	fac_label_box.pack_start(mon, Gtk::PACK_SHRINK);
 	
+	if(scale >= 0.05) {
+		fac_label_box.pack_start(day, Gtk::PACK_SHRINK);
+		tmp = start_time;
+		start = to_minute(&tmp);
+		tmp.minute = 0;
+		tmp.hour = 0;
+		tmp.day++;
+		for(int t = to_minute(&tmp); t < end; start = t, t += 60 * 24) 
+			vd.push_back(ResButton{to_string(to_time(t).day-1)+"일", "", start, t, scale});
+		vd.push_back(ResButton{to_string(to_time(end-1).day)+"일", "", start, end, scale});
+		for(auto& a : vd) day_box.pack_start(a, Gtk::PACK_SHRINK);
+	}
+
+	if(scale >= 1) {
+		fac_label_box.pack_start(hr, Gtk::PACK_SHRINK);
+		tmp = start_time;
+		start = to_minute(&tmp);
+		tmp.minute = 0;
+		int d = tmp.hour++;
+		for(int t= to_minute(&tmp); t < end; start = t, t += 60) {
+			vh.push_back(ResButton{to_string(d++ % 24)+"시", "", start, t, scale});
+			cout << start << ' ' << t << endl;
+		}
+		vh.push_back(ResButton{to_string(d % 24)+"시", "", start, end, scale});
+		for(auto& a : vh) hour_box.pack_start(a, Gtk::PACK_SHRINK);
+	}
 	pack_all();
 }
 
@@ -154,12 +160,10 @@ void Win::pack_all()
 	vb.pack_start(hour_box, Gtk::PACK_SHRINK);
 	for(auto& a : v) vb.pack_start(a, Gtk::PACK_SHRINK);
 
-	fac_label_box.pack_start(mon, Gtk::PACK_SHRINK);
-	fac_label_box.pack_start(day, Gtk::PACK_SHRINK);
-	fac_label_box.pack_start(hr, Gtk::PACK_SHRINK);
 	for(auto& a : vl) fac_label_box.pack_start(a, Gtk::PACK_SHRINK);
 	
 	set_default_size(1000, 700);
+	set_title("예약 시스템");
 	show_all_children();
 }
 
