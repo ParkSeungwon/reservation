@@ -45,17 +45,17 @@ void Facility::on_click(string fac, string tel, int from, int until)
 		Gtk::MessageDialog cancel("예약을 취소하시겠습니까?", 
 				false, Gtk::MESSAGE_WARNING, Gtk::BUTTONS_YES_NO);
 		cancel.set_secondary_text("연락처 : " + tel);
-		if(cancel.run() == Gtk::RESPONSE_OK) {
+		if(cancel.run() == Gtk::RESPONSE_YES) {
 			Time t = to_time(from);
 			string command = "./client.x cancel " + to_string(t.year) + ' ' 
 				+ to_string(t.month) + ' ' + to_string(t.day) + ' '
 				+ to_string(t.hour) + ' ' + to_string(t.minute) + ' ' + fac;
+			cout << command << endl;
 			cout << psstm(command.data());
 		}
 	} else {
 		ResDialog respin(from, until);
-		int result = respin.run();
-		if(result == 1) {
+		if(respin.run() == 1) {
 			Time f = {respin.spf[0].get_value(), respin.spf[1].get_value(), 
 				respin.spf[2].get_value(), respin.spf[3].get_value(), 
 				respin.spf[4].get_value()};

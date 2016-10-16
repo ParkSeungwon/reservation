@@ -34,6 +34,18 @@ protected:
 	void cancel(std::string facility, int from);
 	std::string display(std::string facility);
 	std::map<std::string, Reservation*> facilities;
+};
 
+class Exception : public std::exception 
+{
+public:
+	virtual const char* what() const throw() {
+		return msg.data();
+	}
+	Exception(std::string msg) {
+		this->msg = msg;
+	}
+protected:
+	std::string msg;
 };
 

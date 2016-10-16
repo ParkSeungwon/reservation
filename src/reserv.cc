@@ -68,22 +68,26 @@ string cut(string& s)
 string Reserv::operator()(string s) 
 {//TCPIP 통신 하는 부분. 스트링 s는 수신이고, 리턴값이 tcpip의 답신.
 	string head = cut(s);
-	if(head == "display") return display(s);
-	else if(head == "reserve") {
-		Reservation r;
-		strcpy(r.name, cut(s).data());
-		strcpy(r.tel, cut(s).data());
-		Time f ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
-		Time t ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
-		r.from = to_minute(&f);
-		r.until = to_minute(&t);
-		reserv(cut(s), &r);
-		return "예약되었습니다.";
-	} else if(head == "cancel") {
-		Time f ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
-		cancel(cut(s), to_minute(&f));
-		return "취소되었습니다.";
-	} else return s + " from server";
+	try {
+		if(head == "display") return display(s);
+		else if(head == "reserve") {
+			Reservation r;
+			strcpy(r.name, cut(s).data());
+			strcpy(r.tel, cut(s).data());
+			Time f ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
+			Time t ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
+			r.from = to_minute(&f);
+			r.until = to_minute(&t);
+			reserv(cut(s), &r);
+			return "예약되었습니다.";
+		} else if(head == "cancel") {
+			Time f ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
+			cancel(cut(s), to_minute(&f));
+			return "취소되었습니다.";
+		} else return s + " from server";
+	} catch(...) {
+		return "Syntax error";
+	}
 }
 //예약구문 reserve 박승원 010-3456-5678 2016 10 11 12 30 2016 10 11 14 0 청실
 //조회구문 display 청실
