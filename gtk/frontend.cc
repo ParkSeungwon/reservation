@@ -53,6 +53,7 @@ void Facility::on_click(string fac, string tel, int from, int until)
 	if(!tel.empty()) {//예약된 셀일 경우
 		Gtk::MessageDialog cancel("예약을 취소하시겠습니까?", 
 				false, Gtk::MESSAGE_WARNING, Gtk::BUTTONS_YES_NO);
+		cancel.set_transient_for(*p);
 		cancel.set_secondary_text("연락처 : " + tel);
 		if(cancel.run() == Gtk::RESPONSE_YES) {
 			Time t = to_time(from);
@@ -63,6 +64,7 @@ void Facility::on_click(string fac, string tel, int from, int until)
 		}
 	} else {//빈 셀일 경우
 		ResDialog respin(from, until);
+		respin.set_transient_for(*p);
 		if(respin.run() == 1) {
 			Time f = {respin.spf[0].get_value(), respin.spf[1].get_value(), 
 				respin.spf[2].get_value(), respin.spf[3].get_value(), 
@@ -114,10 +116,21 @@ Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 	tmp.day = 0;
 	tmp.hour = 0;
 	tmp.minute = 0;
-	for(; to_minute(&tmp) < end; start = to_minute(&tmp), tmp.month++) 
-		vm.push_back(ResButton{to_string(tmp.month-1)+"월", "", 
-				start, to_minute(&tmp), scale});
-	vm.push_back(ResButton{to_string(tmp.month-1)+"월", "", start, end, scale});
+	extern int day_of_months[12];
+	for(int t = to_minute(&tmp); t < end; ) {
+		vm.push_back(ResButton{to_string(to_time(start).month)+"월", "", 
+				start, t, scale});
+		start = t;
+		tmp = to_time(t);
+		tmp.month++;
+		if(tmp.month == 13) {
+			tmp.year++;
+			tmp.month = 1;
+		}
+		t = to_minute(&tmp);
+	}
+	vm.push_back(ResButton{to_string(to_time(start).month) + "월", "", 
+			start, end, scale});
 	for(auto& a : vm) mon_box.pack_start(a, Gtk::PACK_SHRINK);
 	fac_label_box.pack_start(mon, Gtk::PACK_SHRINK);
 	
@@ -132,9 +145,9 @@ Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 		//날짜 버튼들을 늘어놓는다.
 		for(int t = to_minute(&tmp); t < end; start = t, t += 60 * 24) 
 			vd.push_back(ResButton{//move symantic을 이용하기 위해
-					to_string(to_time(t).day-1)+"일", "", start, t, scale});
+					to_string(to_time(start).day)+"일", "", start, t, scale});
 		vd.push_back(ResButton{
-				to_string(to_time(end-1).day)+"일", "", start, end, scale});
+				to_string(to_time(start).day)+"일", "", start, end, scale});
 		for(auto& a : vd) day_box.pack_start(a, Gtk::PACK_SHRINK);
 	}
 
@@ -170,7 +183,7 @@ void Win::pack_all()
 
 	for(auto& a : vl) fac_label_box.pack_start(a, Gtk::PACK_SHRINK);
 	
-	set_default_size(1000, 700);
+//	set_default_size(1000, 700);
 	set_title("예약 시스템");
 	show_all_children();
 }

@@ -14,6 +14,7 @@ typedef struct Reservation
 	int from, until;//minute 2000년0시를 0분으로 기준한 분 값.
 	struct Reservation* node;
 } Reservation;
+
 void free_mem(Reservation* p);
 Reservation* insert(Reservation* p, Reservation* to_insert);
 Reservation* del(Reservation* p, int from);

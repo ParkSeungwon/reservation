@@ -2,10 +2,15 @@
 #include"src/reserv.h"
 #include<time.h>
 
-int diag(int s, int e, float scale)
+int diag(int s, int e, float scale, int& w, int& h, int& x, int& y)
 {
 	Win win{s, e, scale};
-	return win.run();
+	win.set_default_size(w, h);
+	win.move(x, y);
+	int result = win.run();
+	win.get_size(w, h);
+	win.get_position(x, y);
+	return result;
 }
 
 extern const char* month_name[];
@@ -34,9 +39,10 @@ int main(int c, char** v)
 	int start = to_minute(&t);
 	int end;
 	if(f >= 1) end = start + 24 * 60 * 7;
-	else if(f >= 0.05) end = start + 24 * 60 * 30;
+	else if(f >= 0.05) end = start + 24 * 60 * 90;
 	else end = start + 60 * 24 * 365 * 5;
 	
 	//예약 시스템 가동
-	while(diag(start, end, f) == Gtk::RESPONSE_ACCEPT);
+	int w, h, x=0, y=0;
+	while(diag(start, end, f, w, h, x, y) == Gtk::RESPONSE_ACCEPT);
 }
