@@ -46,6 +46,8 @@ Facility::Facility(string fac, int start, int end, float scale)
 	show_all_children();
 }
 
+Win* p;
+
 void Facility::on_click(string fac, string tel, int from, int until)
 {
 	if(!tel.empty()) {
@@ -84,6 +86,7 @@ void Facility::on_click(string fac, string tel, int from, int until)
 			}
 		}
 	}
+	p->response(Gtk::RESPONSE_ACCEPT);
 }
 
 
@@ -99,6 +102,7 @@ ResButton::ResButton(string name, string tel, int from, int until, float scale)
 
 Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 {
+	p = this;
 	string s;
 	for(ifstream f("facility.txt"); f >> s;) {
 		v.push_back(Facility{s, start, end, scale});
@@ -150,6 +154,8 @@ Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 
 void Win::pack_all()
 {
+	Gtk::Box* box = get_content_area();
+	box->pack_start(hb);
 	add(hb);
 	hb.pack_start(fac_label_box, Gtk::PACK_SHRINK);
 	hb.pack_start(scwin);

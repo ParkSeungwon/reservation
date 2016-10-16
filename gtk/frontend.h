@@ -23,7 +23,7 @@ protected:
 	void on_click(std::string fac, std::string tel, int from, int to);
 };
 
-class Win : public Gtk::Window
+class Win : public Gtk::Dialog
 {
 public:
 	Win(int, int, float);
