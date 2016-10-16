@@ -97,16 +97,21 @@ ResButton::ResButton(string name, string tel, int from, int until, float scale)
 	this->from = from;
 	this->until = until;
 	set_label(name);//셀의 라벨을 예약자 이름으로
-	set_size_request(scale * (until - from), -1);//셀의 크기를 예약 시간에 맞게
+	set_size_request(scale * (until - from), 40);//셀의 크기를 예약 시간에 맞게
 }
 
 Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 {
 	p = this;
+	mon.set_size_request(-1, 40);
+	day.set_size_request(-1, 40);
+	hr.set_size_request(-1, 40);
 	string s;
 	for(ifstream f("facility.txt"); f >> s;) {
 		v.push_back(Facility{s, start, end, scale});
-		vl.push_back(Gtk::Button(s));
+		Gtk::Button lb(s);
+		lb.set_size_request(-1, 40);
+		vl.push_back(std::move(lb));
 	}
 
 	Time start_time = to_time(start);
@@ -133,9 +138,11 @@ Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 			start, end, scale});
 	for(auto& a : vm) mon_box.pack_start(a, Gtk::PACK_SHRINK);
 	fac_label_box.pack_start(mon, Gtk::PACK_SHRINK);
+	vb.pack_start(mon_box, Gtk::PACK_SHRINK);
 	
 	if(scale >= 0.05) {//일 단위의 표시일 경우
 		fac_label_box.pack_start(day, Gtk::PACK_SHRINK);
+		vb.pack_start(day_box, Gtk::PACK_SHRINK);
 		tmp = start_time;
 		start = to_minute(&tmp);
 		tmp.minute = 0;
@@ -153,6 +160,7 @@ Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 
 	if(scale >= 1) {//시간 단위의 표시일 경우
 		fac_label_box.pack_start(hr, Gtk::PACK_SHRINK);
+		vb.pack_start(hour_box, Gtk::PACK_SHRINK);
 		tmp = start_time;
 		start = to_minute(&tmp);
 		tmp.minute = 0;
@@ -171,16 +179,15 @@ void Win::pack_all()
 {
 	Gtk::Box* box = get_content_area();
 	box->pack_start(hb);
-	add(hb);
-	hb.pack_start(fac_label_box, Gtk::PACK_SHRINK);
+	scr.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+	//add(hb);
+	hb.pack_start(scr, Gtk::PACK_SHRINK);
 	hb.pack_start(scwin);
+	scr.add(fac_label_box);
+	scr.set_vadjustment(scwin.get_vadjustment());
 	scwin.add(vb);
 
-	vb.pack_start(mon_box, Gtk::PACK_SHRINK);
-	vb.pack_start(day_box, Gtk::PACK_SHRINK);
-	vb.pack_start(hour_box, Gtk::PACK_SHRINK);
 	for(auto& a : v) vb.pack_start(a, Gtk::PACK_SHRINK);
-
 	for(auto& a : vl) fac_label_box.pack_start(a, Gtk::PACK_SHRINK);
 	
 //	set_default_size(1000, 700);

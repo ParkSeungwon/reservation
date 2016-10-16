@@ -29,7 +29,7 @@ public:
 	Win(int, int, float);
 
 protected:
-	Gtk::ScrolledWindow scwin;
+	Gtk::ScrolledWindow scwin, scr;
 	Gtk::VBox vb, fac_label_box;
 	Gtk::HBox hb;
 	std::vector<Facility> v;

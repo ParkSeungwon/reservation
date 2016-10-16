@@ -6,6 +6,6 @@ gtkmmLIB = $(shell pkg-config gtkmm-3.0 --libs)
 all : $(EXE)
 
 ../%.x : %.x $(OBJ)
-	$(CC) -o $@ $< $(OBJ) $(gtkmmLIB) -pthread
+	$(CC) -o $@ $< $(OBJ) $(gtkmmLIB) 
 
 

@@ -43,6 +43,6 @@ int main(int c, char** v)
 	else end = start + 60 * 24 * 365 * 5;
 	
 	//예약 시스템 가동
-	int w, h, x=0, y=0;
+	int w=1000, h=700, x=0, y=0;
 	while(diag(start, end, f, w, h, x, y) == Gtk::RESPONSE_ACCEPT);
 }
