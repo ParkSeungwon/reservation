@@ -8,7 +8,7 @@ using namespace std;
 string cut(string&);
 
 string psstm(string command)
-{//return system call output as string
+{//명령을 실행하고 표준출력을 string으로 리턴, 클라이언트를 사용할 함수.
 	char buf[10000];
 	FILE* f = popen(command.c_str(), "r");
 	fgets(buf, sizeof(buf), f);
@@ -18,7 +18,7 @@ string psstm(string command)
 
 Facility::Facility(string fac, int start, int end, float scale)
 {
-	string command = "./client.x display " + fac;
+	string command = "./client.x display " + fac;//시설의 예약 상황을 표시하는 구문
 	string s = psstm(command);
 	s.pop_back();//remove '\n'!! 
 	int from, until;
@@ -46,9 +46,11 @@ Facility::Facility(string fac, int start, int end, float scale)
 	show_all_children();
 }
 
+Win* p;
+
 void Facility::on_click(string fac, string tel, int from, int until)
-{
-	if(!tel.empty()) {
+{//셀을 클릭했을 때 실행되는 함수.
+	if(!tel.empty()) {//예약된 셀일 경우
 		Gtk::MessageDialog cancel("예약을 취소하시겠습니까?", 
 				false, Gtk::MESSAGE_WARNING, Gtk::BUTTONS_YES_NO);
 		cancel.set_secondary_text("연락처 : " + tel);
@@ -57,10 +59,9 @@ void Facility::on_click(string fac, string tel, int from, int until)
 			string command = "./client.x cancel " + to_string(t.year) + ' ' 
 				+ to_string(t.month) + ' ' + to_string(t.day) + ' '
 				+ to_string(t.hour) + ' ' + to_string(t.minute) + ' ' + fac;
-			cout << command << endl;
 			cout << psstm(command.data());
 		}
-	} else {
+	} else {//빈 셀일 경우
 		ResDialog respin(from, until);
 		if(respin.run() == 1) {
 			Time f = {respin.spf[0].get_value(), respin.spf[1].get_value(), 
@@ -71,7 +72,7 @@ void Facility::on_click(string fac, string tel, int from, int until)
 				respin.spt[4].get_value()};
 			int mf = to_minute(&f);
 			int mt = to_minute(&t);
-			if(from <= mf && mf < mt && mt <= until) {
+			if(from <= mf && mf < mt && mt <= until) {//예약을 실행하는 구문
 				string command = "./client.x reserve " + respin.name.get_text() 
 					+ ' ' + respin.tel.get_text() + ' ' + to_string(f.year) + ' '
 					+ to_string(f.month) + ' ' + to_string(f.day) + ' ' +
@@ -79,11 +80,11 @@ void Facility::on_click(string fac, string tel, int from, int until)
 					to_string(t.year) + ' ' + to_string(t.month) + ' ' +
 					to_string(t.day) + ' ' + to_string(t.hour) + ' ' + 
 					to_string(t.minute) + ' ' + fac;
-				cout << command << endl;
 				cout << psstm(command.data());
 			}
 		}
 	}
+	p->response(Gtk::RESPONSE_ACCEPT);//부모 윈도우를 종료시킨다.
 }
 
 
@@ -93,12 +94,13 @@ ResButton::ResButton(string name, string tel, int from, int until, float scale)
 	this->tel = tel;
 	this->from = from;
 	this->until = until;
-	set_label(name);
-	set_size_request(scale * (until - from), -1);
+	set_label(name);//셀의 라벨을 예약자 이름으로
+	set_size_request(scale * (until - from), -1);//셀의 크기를 예약 시간에 맞게
 }
 
 Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 {
+	p = this;
 	string s;
 	for(ifstream f("facility.txt"); f >> s;) {
 		v.push_back(Facility{s, start, end, scale});
@@ -119,29 +121,33 @@ Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 	for(auto& a : vm) mon_box.pack_start(a, Gtk::PACK_SHRINK);
 	fac_label_box.pack_start(mon, Gtk::PACK_SHRINK);
 	
-	if(scale >= 0.05) {
+	if(scale >= 0.05) {//일 단위의 표시일 경우
 		fac_label_box.pack_start(day, Gtk::PACK_SHRINK);
 		tmp = start_time;
 		start = to_minute(&tmp);
 		tmp.minute = 0;
 		tmp.hour = 0;
 		tmp.day++;
+
+		//날짜 버튼들을 늘어놓는다.
 		for(int t = to_minute(&tmp); t < end; start = t, t += 60 * 24) 
-			vd.push_back(ResButton{to_string(to_time(t).day-1)+"일", "", start, t, scale});
-		vd.push_back(ResButton{to_string(to_time(end-1).day)+"일", "", start, end, scale});
+			vd.push_back(ResButton{//move symantic을 이용하기 위해
+					to_string(to_time(t).day-1)+"일", "", start, t, scale});
+		vd.push_back(ResButton{
+				to_string(to_time(end-1).day)+"일", "", start, end, scale});
 		for(auto& a : vd) day_box.pack_start(a, Gtk::PACK_SHRINK);
 	}
 
-	if(scale >= 1) {
+	if(scale >= 1) {//시간 단위의 표시일 경우
 		fac_label_box.pack_start(hr, Gtk::PACK_SHRINK);
 		tmp = start_time;
 		start = to_minute(&tmp);
 		tmp.minute = 0;
 		int d = tmp.hour++;
-		for(int t= to_minute(&tmp); t < end; start = t, t += 60) {
+
+		//시간 버튼들을 늘어놓는다.
+		for(int t= to_minute(&tmp); t < end; start = t, t += 60) 
 			vh.push_back(ResButton{to_string(d++ % 24)+"시", "", start, t, scale});
-			cout << start << ' ' << t << endl;
-		}
 		vh.push_back(ResButton{to_string(d % 24)+"시", "", start, end, scale});
 		for(auto& a : vh) hour_box.pack_start(a, Gtk::PACK_SHRINK);
 	}
@@ -150,6 +156,8 @@ Win::Win(int start, int end, float scale) : mon("월"), day("일"), hr("시간")
 
 void Win::pack_all()
 {
+	Gtk::Box* box = get_content_area();
+	box->pack_start(hb);
 	add(hb);
 	hb.pack_start(fac_label_box, Gtk::PACK_SHRINK);
 	hb.pack_start(scwin);
@@ -168,7 +176,7 @@ void Win::pack_all()
 }
 
 ResDialog::ResDialog(int from, int until)
-{
+{//사용자 입력을 편리하게 하기 위한 스핀버튼과 입력창이다.
 	set_title("예약 시간 입력창");
 	Time f = to_time(from);
 	Time t = to_time(until);
@@ -193,6 +201,7 @@ ResDialog::ResDialog(int from, int until)
 		spt[i].set_numeric();
 	}
 
+	//스핀 버튼들을 달력 형식처럼 설정
 	spf[0].set_range(f.year, t.year);
 	spt[0].set_range(f.year, t.year);
 	spf[1].set_range(1, 12);
