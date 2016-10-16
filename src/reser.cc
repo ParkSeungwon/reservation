@@ -22,17 +22,18 @@ int is_special_year(int y)
 Time to_time(int minute)
 {//2000년 0시 기준 분값을 시간 구조체로 변환
 	int tmp, year, month, day, hour, m;
-	for(year=2000; minute > (m = 60*24*(365 + is_special_year(year))); year++) {
+	for(year=2000; minute >= (m = 60*24*(365 + is_special_year(year))); year++) {
 		minute -= m;
 	}
-	for(month=0; minute > (m = 60 * 24 * day_of_months[month]); month++) {
+	for(month=1; minute >= (m = 60 * 24 * (day_of_months[month-1] + 
+					(is_special_year(year) && month == 2))); month++) {
 		minute -= m;
 	}
 	day = minute / (60 * 24);
 	minute %= 60 * 24;
 	hour = minute / 60;
 	minute %= 60;
-	Time t = {year, month+1, day+1, hour, minute};
+	Time t = {year, month, day+1, hour, minute};
 	return t;
 }
 
@@ -40,7 +41,8 @@ int to_minute(Time* t)
 {//시간 구조체를 2000년 0시 기준 분값으로 변환
 	int r = 0;
 	for(int y=2000; y < t->year; y++) r += 60 * 24 * (365 + is_special_year(y));
-	for(int m=1; m < t->month; m++) r += 60 * 24 * day_of_months[m-1];
+	for(int m=1; m < t->month; m++) r += 60 * 24 * (day_of_months[m-1] + 
+			(is_special_year(t->year) && m == 2));
 	for(int d=1; d < t->day; d++) r += 60 * 24;
 	for(int h=0; h < t->hour; h++) r += 60;
 	r += t->minute;

@@ -34,7 +34,7 @@ int main(int c, char** v)
 	int start = to_minute(&t);
 	int end;
 	if(f >= 1) end = start + 24 * 60 * 7;
-	else if(f >= 0.05) end = start + 24 * 60 * 30;
+	else if(f >= 0.05) end = start + 24 * 60 * 90;
 	else end = start + 60 * 24 * 365 * 5;
 	
 	//예약 시스템 가동
