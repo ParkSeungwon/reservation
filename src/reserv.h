@@ -21,19 +21,19 @@ Reservation* del(Reservation* p, int from);
 void show(Reservation* p);
 Time to_time(int);
 int to_minute(Time*);
-
+void enter_time(Time*);
 
 class Reserv
-{//tcpip모듈에 펑크터로 넘길 클래스.
+{//tcpip모듈에 펑크터로 넘길 클래스. 
 public:
 	Reserv();
 	virtual ~Reserv();
 	std::string operator()(std::string s);
 
 protected:
-	void reserv(std::string facility, Reservation* p);
-	void cancel(std::string facility, int from);
-	std::string display(std::string facility);
-	std::map<std::string, Reservation*> facilities;
+	void reserv(std::string facility, Reservation* p);//insert의 wrapper함수
+	void cancel(std::string facility, int from);//del의 wrapper함수
+	std::string display(std::string facility);//show의 wrapper함수
+	std::map<std::string, Reservation*> facilities;//시설들의 포인터 맵
 };
 

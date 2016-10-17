@@ -34,5 +34,4 @@ public:
 
 protected:
 	std::string end_string;
-
 };
