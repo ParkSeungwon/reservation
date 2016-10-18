@@ -24,7 +24,7 @@ int to_minute(Time*);
 void enter_time(Time*);
 
 class Reserv
-{//tcpip모듈에 펑크터로 넘길 클래스. 
+{//tcpip모듈에 펑크터로 넘길 일종의 wrapper 클래스. 
 public:
 	Reserv();
 	virtual ~Reserv();
