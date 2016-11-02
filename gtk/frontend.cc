@@ -1,6 +1,7 @@
 #include"frontend.h"
 #include<fstream>
 #include<string>
+#include<sstream>
 #include<iostream>
 #include"reserv.h"
 using namespace std;
@@ -30,13 +31,15 @@ Facility::Facility(string fac, int start, int end, float scale)
 {
 	string command = "./client.x display " + fac;//시설의 예약 상황을 표시하는 구문
 	string s = psstm(command);
-	s.pop_back();//remove '\n'!! 
+	stringstream ss;
+	ss << s;
+	//s.pop_back();//remove '\n'!! 
 
 	int from, until;
-	string tel;
-	while(!s.empty()) {
-		ResButton bt{cut(s), tel = cut(s), from = stoi(cut(s)), 
-			until = stoi(cut(s)), scale};
+	string name, tel;
+	while(ss >> name) {
+		ss >> tel >> from >> until;
+		ResButton bt{name, tel, from, until, scale};
 		bt.signal_clicked().connect(
 				bind(&Facility::on_click, this, fac, tel, from, until));
 		if(start < from) {//빈 여백 채우기
@@ -68,10 +71,10 @@ void Facility::on_click(string fac, string tel, int from, int until)
 		cancel.set_secondary_text("연락처 : " + tel);
 		if(cancel.run() == Gtk::RESPONSE_YES) {
 			Time t = to_time(from);
-			string command = "./client.x cancel " + to_string(t.year) + ' ' 
-				+ to_string(t.month) + ' ' + to_string(t.day) + ' '
-				+ to_string(t.hour) + ' ' + to_string(t.minute) + ' ' + fac;
-			cout << psstm(command.data());
+			stringstream ss;
+			ss << "./client.x cancel " << t.year << ' ' << t.month << ' ';
+			ss << t.day << ' ' << t.hour << ' ' << t.minute << ' ' << fac;
+			cout << psstm(ss.str().data());
 		}
 	} else {//빈 셀일 경우
 		ResDialog respin(from, until);
@@ -86,14 +89,13 @@ void Facility::on_click(string fac, string tel, int from, int until)
 			int mf = to_minute(&f);
 			int mt = to_minute(&t);
 			if(from <= mf && mf < mt && mt <= until) {//예약을 실행하는 구문
-				string command = "./client.x reserve " + respin.name.get_text() 
-					+ ' ' + respin.tel.get_text() + ' ' + to_string(f.year) + ' '
-					+ to_string(f.month) + ' ' + to_string(f.day) + ' ' +
-					to_string(f.hour) + ' ' + to_string(f.minute) + ' ' +
-					to_string(t.year) + ' ' + to_string(t.month) + ' ' +
-					to_string(t.day) + ' ' + to_string(t.hour) + ' ' + 
-					to_string(t.minute) + ' ' + fac;
-				cout << psstm(command.data());
+				stringstream ss;
+				ss << "./client.x reserve " << respin.name.get_text() << ' ' <<
+					respin.tel.get_text() << ' ' << f.year << ' ' << f.month <<
+					' ' << f.day << ' ' << f.hour << ' '  << f.minute << ' ' <<
+					' ' << t.year << ' '  << t.month << ' '  << t.day << ' ' <<
+					t.hour << ' ' << t.minute << ' ' << fac;
+				cout << psstm(ss.str().data());
 			}
 		}
 	}

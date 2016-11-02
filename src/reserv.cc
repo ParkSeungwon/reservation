@@ -1,4 +1,5 @@
 #include<cstring>
+#include<sstream>
 #include<fstream>
 #include<iostream>
 #include<string>
@@ -56,33 +57,37 @@ string Reserv::display(string facility)
 	return r;
 }
 
-string cut(string& s)
-{//첫번째 스페이스까지를 잘라내어서 리턴함.
-	int pos = s.find(' ');
-	string r = s.substr(0, pos);
-	if(pos != string::npos) s = s.substr(pos+1);
-	else s = "";
-	return r;
+basic_istream<char>& operator>>(basic_istream<char>& ss, Time& t)
+{
+	ss >> t.year;
+	ss >> t.month;
+	ss >> t.day;
+	ss >> t.hour;
+	ss >> t.minute;
+	return ss;
 }
 
 string Reserv::operator()(string s) 
 {//TCPIP 통신 하는 부분. 스트링 s는 수신이고, 리턴값이 tcpip의 답신.
-	string head = cut(s);
+	stringstream ss;
+	ss << s;
+	ss >> s;
 	try {
-		if(head == "display") return display(s);
-		else if(head == "reserve") {
+		if(s == "display") {
+			ss >> s;
+			return display(s);
+		} else if(s == "reserve") {
 			Reservation r;
-			strcpy(r.name, cut(s).data());
-			strcpy(r.tel, cut(s).data());
-			Time f ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
-			Time t ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
+			Time f, t;
+			ss >> r.name >> r.tel >> f >> t >> s;
 			r.from = to_minute(&f);
 			r.until = to_minute(&t);
-			reserv(cut(s), &r);
+			reserv(s, &r);
 			return "예약되었습니다.";
-		} else if(head == "cancel") {
-			Time f ={stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s)), stoi(cut(s))};
-			cancel(cut(s), to_minute(&f));
+		} else if(s == "cancel") {
+			Time f;
+			ss >> f >> s;
+			cancel(s, to_minute(&f));
 			return "취소되었습니다.";
 		} else return s + " from server";
 	} catch(...) {
