@@ -1,0 +1,2 @@
+ host $1 | awk '/has address/ { print $4 ; exit }'
+

@@ -1,14 +1,24 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<string>
 #include"reserv.h"
+using namespace std;
+//void psstm(char* buff) {
+//	FILE* f = popen(buff, "r");
+//	fgets(buff, 10000, f);
+//	pclose(f);
+//}
 
-void psstm(char* buff) {
-	FILE* f = popen(buff, "r");
-	fgets(buff, 10000, f);
+string psstm(string command)
+{//return system call output as string
+	string s;
+	char buf[100];
+	FILE* f = popen(command.c_str(), "r");
+	while(fgets(buf, sizeof(buf), f)) s += buf;
 	pclose(f);
+	return s;
 }
-
 void  console_reserve()
 {
 	char buff[10000] = {}, name[40], tel[20], facility[20], number[10];
